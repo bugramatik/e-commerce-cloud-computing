@@ -1,2 +1,6 @@
 Flask
+Jinja2
 Gunicorn
+python-dotenv
+pymongo==3.6
+dnspython

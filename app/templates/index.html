@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>E-Commerce Site</title>
+</head>
+<body>
+    <h1>Welcome to the E-Commerce Site</h1>
+
+    <form action="/login" method="POST">
+        <label for="username">Username:</label>
+        <input type="text" id="username" name="username" required>
+        <label for="password">Password (for admin):</label>
+        <input type="password" id="password" name="password">
+        <button type="submit">Log in</button>
+    </form>
+
+    <h2>Categories</h2>
+    <ul>
+        {% for category in categories %}
+        <li>{{ category }}</li>
+        {% endfor %}
+    </ul>
+</body>
+</html>
