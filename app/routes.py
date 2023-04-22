@@ -5,7 +5,8 @@
 #TODO: Dynamic schema olayina bi bakmak lazim gereksiz field kullanmamak lazim computer icin size gibi
 #TODO: User remove edilince itemler de silinmeli, rate reviewlar da silinmeli
 #TODO: User list rewiev rate gozukmeli,
-
+#TODO: Item ekleme price negatif olmamali
+#TODO: Kalanlar: profil sayfasi, rate-review,ama sayfada lıstıng
 from app import app
 from flask import render_template,request,redirect,url_for,flash,session
 from pymongo.mongo_client import MongoClient
@@ -29,6 +30,7 @@ def login():
         if bcrypt.checkpw(password_to_check, hashed_password_from_db):
             session['username'] = user['username']
             session['is_admin'] = user['is_admin']
+            session['user_id'] = str(user['_id'])
             flash('Successfully logged in', 'success')
             return redirect(url_for('index'))
         flash('Incorrect password', 'error')
@@ -94,7 +96,9 @@ def add_item():
             'seller': request.form['seller'],
             'image_url': request.form['image_url'],
             'rating': 0,
-            'reviews': [],
+            'reviews': {},
+            'rates': {},
+            'number_of_rates': 0,
             'details': {
                 'size': request.form.get('size', None),
                 'colour': request.form.get('colour', None),
@@ -124,15 +128,47 @@ def item_details(item_id):
 
 @app.route('/submit_review/<item_id>', methods=['POST'])
 def submit_review(item_id):
-    rating = int(request.form['rating'])
     review = request.form['review']
-    username = session['username']
-
-    # client.get_collection('items').update_one({}
-
+    username = session.get('username')
+    client.get_collection('items').update_one(
+        {'_id': ObjectId(item_id)},
+        {'$set': {f'reviews.{username}': review}},
+        upsert=True
+    )
     flash('Review submitted successfully', 'success')
     return redirect(url_for('item_details', item_id=item_id))
 
+
+@app.route('/submit_rating/<item_id>', methods=['POST'])
+def submit_rate(item_id):
+    rate = int(request.form['rating'])
+    username = session.get('username')
+
+    old_number_of_rates = client.get_collection('items').find_one({'_id': ObjectId(item_id)})['number_of_rates']
+    old_rate = client.get_collection('items').find_one({'_id': ObjectId(item_id)})['rates'].get(username, 0)
+
+    client.get_collection('items').update_one(
+        {'_id': ObjectId(item_id)},
+        {'$set': {f'rates.{username}': rate}},
+        upsert=True
+    )
+
+    current_number_of_rates = len(client.get_collection('items').find_one({'_id': ObjectId(item_id)})['rates'].keys()) # For the case of updating rate submission
+
+    client.get_collection('items').update_one(
+        {'_id': ObjectId(item_id)},
+        {'$set': {'number_of_rates': current_number_of_rates}}
+    )
+
+    old_rating = client.get_collection('items').find_one({'_id': ObjectId(item_id)})['rating']
+    new_avg_rating = (old_rating * old_number_of_rates + rate - old_rate) / current_number_of_rates
+
+    client.get_collection('items').update_one(
+        {'_id': ObjectId(item_id)},
+        {'$set': {'rating': new_avg_rating}}
+    )
+    flash('Rating submitted successfully', 'success')
+    return redirect(url_for('item_details', item_id=item_id))
 
 @app.route('/list_users.html')
 def list_users():
