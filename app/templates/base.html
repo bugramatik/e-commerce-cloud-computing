@@ -15,12 +15,26 @@
         </ul>
       {% endif %}
     {% endwith %}
-    <!-- Include any additional CSS or JavaScript files here -->
 </head>
 <body>
     <header>
         <h1>Welcome to the E-Commerce Site</h1>
-        <!-- Common header elements, such as logo and navigation, go here -->
+        {% if session['username'] %}
+            <span> Current User: <a href="{{ url_for('profile') }}"> {{ session['username'] }}</a></span>
+        {% if session['is_admin'] %}
+            <span>(Admin User)</span>
+        {% else %}
+            <span>(Regular User)</span>
+        {% endif %}
+        <p></p>
+        {% endif %}
+
+        <nav>
+            <a href="/">Home</a>
+            {% if 'username' in session %}
+                <a href="{{ url_for('logout') }}">Logout</a>
+            {% endif %}
+        </nav>
     </header>
 
     <main>
@@ -29,7 +43,6 @@
     </main>
 
     <footer>
-        <!-- Common footer elements, such as copyright and contact information, go here -->
         <p>&copy; 2023 Your E-Commerce Site. All Rights Reserved.</p>
     </footer>
 </body>

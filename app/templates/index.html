@@ -5,9 +5,8 @@
         <p class=error><strong>Error:</strong> {{ error }}
     {% endif %}
     {% if session['username'] %}
-        <p>Welcome, {{ session['username'] }}!</p>
+        <p> </p>
     {% if session['is_admin'] %}
-        <p>You are an admin user.</p>
         <a href="{{ url_for('list_users') }}" class="btn">List Users</a>
     {% endif %}
         <a href="{{ url_for('list_items') }}" class="btn">List Items</a>

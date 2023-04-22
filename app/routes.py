@@ -1,12 +1,9 @@
 #TODO: unique username, item name, category name
-#TODO: Rate review implement et
 #TODO: indexde itemlerin listelenmesi isteniyo
 #TODO: Authoritazion bidaha kontrol et
 #TODO: Dynamic schema olayina bi bakmak lazim gereksiz field kullanmamak lazim computer icin size gibi
-#TODO: User remove edilince itemler de silinmeli, rate reviewlar da silinmeli
-#TODO: User list rewiev rate gozukmeli,
 #TODO: Item ekleme price negatif olmamali
-#TODO: Kalanlar: profil sayfasi, rate-review,ama sayfada lıstıng
+#TODO: Kalanlar: ama sayfada lıstıng
 from app import app
 from flask import render_template,request,redirect,url_for,flash,session
 from pymongo.mongo_client import MongoClient
@@ -237,5 +234,29 @@ def delete_user(user_id):
     else:
         flash('You do not have permission to delete users', 'error')
     return redirect(url_for('list_users'))
+
+
+
+@app.route('/profile.html')
+def profile():
+    if 'username' not in session:
+        flash('You need to be logged in to access your profile', 'error')
+        return redirect(url_for('index'))
+
+    username = session['username']
+    items = list(client.get_collection('items').find())
+    user_reviews = {}
+    user_ratings = []
+
+    for item in items:
+        if username in item['reviews']:
+            user_reviews[item['_id']] = [item['reviews'][username],item['name']]
+        if username in item['rates']:
+            user_ratings.append(item['rates'][username])
+
+    avg_rating = sum(user_ratings) / len(user_ratings) if user_ratings else 0
+
+    return render_template('profile.html', username=username, avg_rating=avg_rating, user_reviews=user_reviews)
+
 
 

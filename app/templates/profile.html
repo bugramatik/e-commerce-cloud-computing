@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <h1>{{ username }}'s Profile</h1>
+    <p>Average Rating: {{ avg_rating }}</p>
+
+    <h2>Reviews:</h2>
+    <ul>
+        {% for item_id, value in user_reviews.items() %}
+            <li>
+                <a href="{{ url_for('item_details', item_id=item_id) }}">Item {{ value[1] }}</a>: {{ value[0] }}
+            </li>
+        {% endfor %}
+    </ul>
+{% endblock %}
