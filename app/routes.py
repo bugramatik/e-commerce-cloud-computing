@@ -52,9 +52,11 @@ def filter_items():
     categories = client.get_collection('categories').find()
 
     category_name_to_id = {category['name']: str(category['_id']) for category in categories}
-
+    print(category_name_to_id)
     selected_category_ids = [category_name_to_id[cat_name] for cat_name in selected_category_names]
-
+    if not selected_category_ids: # Case of not selecting a category filter
+        categories = client.get_collection('categories').find()
+        selected_category_ids = [str(category['_id']) for category in categories]
     items = list(client.get_collection('items').find({'category': {'$in': selected_category_ids}}))
 
     categories = [category['name'] for category in client.get_collection('categories').find()]
