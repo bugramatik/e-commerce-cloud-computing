@@ -7,43 +7,43 @@
     <title>My Application</title>
 
     {% with messages = get_flashed_messages() %}
-      {% if messages %}
-        <ul class=flashes>
-        {% for message in messages %}
-          <li>{{ message }}</li>
-        {% endfor %}
-        </ul>
-      {% endif %}
+        {% if messages %}
+            <ul class=flashes>
+                {% for message in messages %}
+                    <li>{{ message }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
     {% endwith %}
 </head>
 <body>
-    <header>
-        <h1>Welcome to the E-Commerce Site</h1>
-        {% if session['username'] %}
-            <span> Current User: <a href="{{ url_for('profile') }}"> {{ session['username'] }}</a></span>
+<header>
+    <h1>Welcome to the E-Commerce Site</h1>
+    {% if session['username'] %}
+        <span> Current User: <a href="{{ url_for('profile') }}"> {{ session['username'] }}</a></span>
         {% if session['is_admin'] %}
             <span>(Admin User)</span>
         {% else %}
             <span>(Regular User)</span>
         {% endif %}
         <p></p>
+    {% endif %}
+
+    <nav>
+        <a href="/">Home</a>
+        {% if 'username' in session %}
+            <a href="{{ url_for('logout') }}">Logout</a>
         {% endif %}
+    </nav>
+</header>
 
-        <nav>
-            <a href="/">Home</a>
-            {% if 'username' in session %}
-                <a href="{{ url_for('logout') }}">Logout</a>
-            {% endif %}
-        </nav>
-    </header>
+<main>
+    {% block content %}
+    {% endblock %}
+</main>
 
-    <main>
-        {% block content %}
-        {% endblock %}
-    </main>
-
-    <footer>
-        <p>&copy; 2023 Your E-Commerce Site. All Rights Reserved.</p>
-    </footer>
+<footer>
+    <p>&copy; 2023 Your E-Commerce Site. All Rights Reserved.</p>
+</footer>
 </body>
 </html>

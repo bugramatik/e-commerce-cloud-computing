@@ -1,10 +1,10 @@
-from app import app
-from flask import render_template,request,redirect,url_for,flash,session
-from pymongo.mongo_client import MongoClient
-from bson import ObjectId
-from .db import *
 import bcrypt
+from bson import ObjectId
+from flask import render_template, request, redirect, url_for, flash, session
+from pymongo.mongo_client import MongoClient
 
+from app import app
+from .db import *
 
 client = connect_to_db()
 
@@ -29,17 +29,19 @@ def login():
         flash('User not found', 'error')
         return redirect(url_for('index'))
 
+
 @app.route('/logout')
 def logout():
     session.clear()
     return redirect(url_for('index'))
 
+
 @app.route('/')
 @app.route('/index.html')
 def index():
-    categories = [ category['name'] for category in client.get_collection('categories').find()]
+    categories = [category['name'] for category in client.get_collection('categories').find()]
     items = list(client.get_collection('items').find())
-    return render_template('index.html', categories=categories,session=session,items=items)
+    return render_template('index.html', categories=categories, session=session, items=items)
 
 
 @app.route('/filter_items', methods=['POST'])
@@ -49,28 +51,27 @@ def filter_items():
 
     category_name_to_id = {category['name']: str(category['_id']) for category in categories}
     selected_category_ids = [category_name_to_id[cat_name] for cat_name in selected_category_names]
-    if not selected_category_ids: # Case of not selecting a category filter
+    if not selected_category_ids:  # Case of not selecting a category filter
         categories = client.get_collection('categories').find()
         selected_category_ids = [str(category['_id']) for category in categories]
     items = list(client.get_collection('items').find({'category': {'$in': selected_category_ids}}))
 
     categories = [category['name'] for category in client.get_collection('categories').find()]
 
-
-    return render_template('index.html', items=items, categories=categories, session=session,selected_category_names=selected_category_names)
-
+    return render_template('index.html', items=items, categories=categories, session=session,
+                           selected_category_names=selected_category_names)
 
 
 @app.route('/list_items.html')
 def list_items():
     items = list(client.get_collection('items').find())
     users = client.get_collection('users').find()
-    users_dict= {str(user['_id']):user['username'] for user in users}
+    users_dict = {str(user['_id']): user['username'] for user in users}
     categories = client.get_collection('categories')
     for item in items:
         category = categories.find_one({'_id': ObjectId(item['category'])})
         item['category_name'] = category['name']
-    return render_template('list_items.html', items=items,users_dict=users_dict)
+    return render_template('list_items.html', items=items, users_dict=users_dict)
 
 
 @app.route('/add_item.html', methods=['GET', 'POST'])
@@ -115,12 +116,12 @@ def add_item():
 @app.route('/item/<item_id>')
 def item_details(item_id):
     item = client.get_collection('items').find_one({'_id': ObjectId(item_id)})
-    users_dict = {str(user['_id']):user['username'] for user in client.get_collection('users').find()}
+    users_dict = {str(user['_id']): user['username'] for user in client.get_collection('users').find()}
     categories = client.get_collection('categories')
     category = categories.find_one({'_id': ObjectId(item['category'])})
     item['category_name'] = category['name']
 
-    return render_template('item_details.html', item=item,users_dict=users_dict)
+    return render_template('item_details.html', item=item, users_dict=users_dict)
 
 
 @app.route('/submit_review/<item_id>', methods=['POST'])
@@ -156,7 +157,8 @@ def submit_rate(item_id):
         upsert=True
     )
 
-    current_number_of_rates = len(client.get_collection('items').find_one({'_id': ObjectId(item_id)})['rates'].keys()) # For the case of updating rate submission
+    current_number_of_rates = len(client.get_collection('items').find_one({'_id': ObjectId(item_id)})[
+                                      'rates'].keys())  # For the case of updating rate submission
 
     client.get_collection('items').update_one(
         {'_id': ObjectId(item_id)},
@@ -173,11 +175,12 @@ def submit_rate(item_id):
     flash('Rating submitted successfully', 'success')
     return redirect(url_for('item_details', item_id=item_id))
 
+
 @app.route('/list_users.html')
 def list_users():
     if session.get('is_admin'):
         users = client.get_collection('users').find()
-        return render_template('list_users.html', users=users,session=session)
+        return render_template('list_users.html', users=users, session=session)
     else:
         flash('You do not have permission to access this page', 'error')
         return redirect(url_for('index'))
@@ -207,16 +210,13 @@ def add_user():
         password = request.form.get('password')
         is_admin = request.form.get('is_admin') == 'on'
 
-        # Check if the username already exists
         existing_user = get_user(username)
         if existing_user:
             flash('Username already exists', 'error')
             return redirect(url_for('add_user'))
 
-        # Hash the password
         hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
 
-        # Create a new user and save it to the database
         user = {
             'username': username,
             'password': hashed_password.decode('utf-8'),
@@ -242,7 +242,6 @@ def delete_user(user_id):
     return redirect(url_for('list_users'))
 
 
-
 @app.route('/profile.html')
 def profile():
     if 'username' not in session:
@@ -256,13 +255,10 @@ def profile():
 
     for item in items:
         if username in item['reviews']:
-            user_reviews[item['_id']] = [item['reviews'][username],item['name']]
+            user_reviews[item['_id']] = [item['reviews'][username], item['name']]
         if username in item['rates']:
             user_ratings.append(item['rates'][username])
 
     avg_rating = sum(user_ratings) / len(user_ratings) if user_ratings else 0
 
     return render_template('profile.html', username=username, avg_rating=avg_rating, user_reviews=user_reviews)
-
-
-

@@ -4,35 +4,35 @@
     {% if error %}
         <p class=error><strong>Error:</strong> {{ error }}
     {% endif %}
-    {% if session['username'] %}
-        <p> </p>
+{% if session['username'] %}
+    <p></p>
     {% if session['is_admin'] %}
         <a href="{{ url_for('list_users') }}" class="btn">List Users</a>
     {% endif %}
-        <a href="{{ url_for('list_items') }}" class="btn">List Items</a>
-        <a href="{{ url_for('logout') }}">Log out</a>
-    {% else %}
-         <form action="/login" method="POST">
-            <label for="username">Username:</label>
-            <input type="text" id="username" name="username" required>
-            <label for="password">Password </label>
-            <input type="password" id="password" name="password">
-            <button type="submit">Log in</button>
-        </form>
+    <a href="{{ url_for('list_items') }}" class="btn">List Items</a>
+    <a href="{{ url_for('logout') }}">Log out</a>
+{% else %}
+    <form action="/login" method="POST">
+        <label for="username">Username:</label>
+        <input type="text" id="username" name="username" required>
+        <label for="password">Password </label>
+        <input type="password" id="password" name="password">
+        <button type="submit">Log in</button>
+    </form>
 
-    {% endif %}
+{% endif %}
 
     <h2>Filters</h2>
     <form action="{{ url_for('filter_items') }}" method="POST">
         {% for category in categories %}
             <div>
                 {% if category in selected_category_names %}
-                <input type="checkbox" id="{{ category }}" name="categories" value="{{ category }}" checked>
-            {% else %}
-                <input type="checkbox" id="{{ category }}" name="categories" value="{{ category }}">
-            {% endif %}
-            <label for="{{ category }}">{{ category }}</label>
-        </div>
+                    <input type="checkbox" id="{{ category }}" name="categories" value="{{ category }}" checked>
+                {% else %}
+                    <input type="checkbox" id="{{ category }}" name="categories" value="{{ category }}">
+                {% endif %}
+                <label for="{{ category }}">{{ category }}</label>
+            </div>
         {% endfor %}
         <button type="submit">Search</button>
     </form>
@@ -41,16 +41,17 @@
     <div class="items">
 
         <ul>
-        {% for item in items %}
-            <li>
-                <div class="item">
-                    <h3><a href="{{ url_for('item_details', item_id=item['_id']) }}">{{ item.name }}</a></h3>
-                    <p>{{ item.description }}</p>
-                    <p>Price: {{ item.price }}</p>
-                    <img src="{{ item.image_url }}" alt="{{ item.name }}" style="max-width: 150px; max-height: 150px;">
-                </div>
-            </li>
-        {% endfor %}
+            {% for item in items %}
+                <li>
+                    <div class="item">
+                        <h3><a href="{{ url_for('item_details', item_id=item['_id']) }}">{{ item.name }}</a></h3>
+                        <p>{{ item.description }}</p>
+                        <p>Price: {{ item.price }}</p>
+                        <img src="{{ item.image_url }}" alt="{{ item.name }}"
+                             style="max-width: 150px; max-height: 150px;">
+                    </div>
+                </li>
+            {% endfor %}
         </ul>
     </div>
 {% endblock %}

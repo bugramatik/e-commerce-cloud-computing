@@ -5,28 +5,28 @@
     <ul>
         {% for item in items %}
             <li>
-        <div class="item">
-            <h2><a href="{{ url_for('item_details', item_id=item['_id']) }}">{{ item.name }}</a></h2>
-            <h4><p>{{ item.description }}</p></h4>
-            <p>Price: {{ item.price }} $</p>
-            <p>Seller: {{ users_dict[item.seller]}}</p>
-            <p>Category: {{item.category_name}}</p>
-            <img src="{{ item.image_url }}" alt="{{ item.name }}" style="max-width: 300px; max-height: 300px;" >
+                <div class="item">
+                    <h2><a href="{{ url_for('item_details', item_id=item['_id']) }}">{{ item.name }}</a></h2>
+                    <h4><p>{{ item.description }}</p></h4>
+                    <p>Price: {{ item.price }} $</p>
+                    <p>Seller: {{ users_dict[item.seller] }}</p>
+                    <p>Category: {{ item.category_name }}</p>
+                    <img src="{{ item.image_url }}" alt="{{ item.name }}" style="max-width: 300px; max-height: 300px;">
 
-            {% if item.category_name == 'Clothing' %}
-                <p>Size: {{ item.details.size }}</p>
-                <p>Colour: {{ item.details.colour }}</p>
-            {% elif item.category_name in ['Computer Components','Monitors']%}
-                <p>Spec: {{ item.details.spec }}</p>
-            {% else %}
-                <p></p>
-            {% endif %}
-            {% if session['is_admin'] %}
-                <td><a href="{{ url_for('delete_item', item_id=item['_id']) }}">Remove Item</a></td>
-            {% endif %}
-        </div>
+                    {% if item.category_name == 'Clothing' %}
+                        <p>Size: {{ item.details.size }}</p>
+                        <p>Colour: {{ item.details.colour }}</p>
+                    {% elif item.category_name in ['Computer Components','Monitors'] %}
+                        <p>Spec: {{ item.details.spec }}</p>
+                    {% else %}
+                        <p></p>
+                    {% endif %}
+                    {% if session['is_admin'] %}
+                        <td><a href="{{ url_for('delete_item', item_id=item['_id']) }}">Remove Item</a></td>
+                    {% endif %}
+                </div>
             </li>
-    {% endfor %}
+        {% endfor %}
     </ul>
     {% if session['is_admin'] %}
         <a href="{{ url_for('add_item') }}" class="btn">Add Item</a>
