@@ -13,7 +13,6 @@
             <img src="{{ item.image_url }}" alt="{{ item.name }}">
             <p>Rating: {{ item.rating }}</p>
             <p>Number of Ratings: {{ item.number_of_rates}}</p>
-            <!-- Display item-specific fields -->
             {% if item.category_name == 'Clothing' %}
                 <p>Size: {{ item.details.size }}</p>
                 <p>Colour: {{ item.details.colour }}</p>
@@ -24,7 +23,6 @@
                 <td><a href="{{ url_for('delete_item', item_id=item['_id']) }}">Remove Item</a></td>
             {% endif %}
         </div>
-        <!-- Reviews -->
         <div class="reviews-container" style="width: 40%;">
             <h3>User Reviews</h3>
             {% for username, review_text in item.reviews.items() %}
@@ -33,20 +31,26 @@
             {% endfor %}
         </div>
     </div>
-    <h2>Rate and Review</h2>
-    <div class="forms-container" style="display: flex;">
-        {% if not is_admin %}
+        {% if session['username'] %}
+            <h2>Rate and Review</h2>
+            <div class="forms-container" style="display: flex;">
+
             <form action="{{ url_for('submit_review', item_id=item['_id']) }}" method="POST">
-                <label for="review">Review:</label>
-                <textarea id="review" name="review" required></textarea>
-                <br>
-                <button type="submit">Submit Review</button>
+                <label for="review">Your review:</label>
+                <textarea id="review" name="review" placeholder="{{ item.reviews.get(session.username, '') }}" required></textarea>
+                <button type="submit">Submit review</button>
             </form>
             <form action="{{ url_for('submit_rate', item_id=item['_id']) }}" method="POST">
-                <label for="rating">Rating (1-5):</label>
-                <input type="number" id="rating" name="rating" min="1" max="5" required>
-                <br>
-                <button type="submit">Submit Rate</button>
+                <label for="rating">Your rating:</label>
+                <select id="rating" name="rating" required>
+                    <option value="" {% if item.rates.get(session.username) == None %}selected{% endif %}>Select a rating</option>
+                    <option value="1" {% if item.rates.get(session.username) == 1 %}selected{% endif %}>1</option>
+                    <option value="2" {% if item.rates.get(session.username) == 2 %}selected{% endif %}>2</option>
+                    <option value="3" {% if item.rates.get(session.username) == 3 %}selected{% endif %}>3</option>
+                    <option value="4" {% if item.rates.get(session.username) == 4 %}selected{% endif %}>4</option>
+                    <option value="5" {% if item.rates.get(session.username) == 5 %}selected{% endif %}>5</option>
+                </select>
+                <button type="submit">Submit rating</button>
             </form>
         {% endif %}
     </div>

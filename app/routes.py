@@ -1,9 +1,6 @@
-#TODO: unique username, item name, category name
-#TODO: indexde itemlerin listelenmesi isteniyo
 #TODO: Authoritazion bidaha kontrol et
 #TODO: Dynamic schema olayina bi bakmak lazim gereksiz field kullanmamak lazim computer icin size gibi
-#TODO: Item ekleme price negatif olmamali
-#TODO: Kalanlar: ama sayfada lıstıng
+#TODO:yorumlar,todolar, ve printler kontrol et
 from app import app
 from flask import render_template,request,redirect,url_for,flash,session
 from pymongo.mongo_client import MongoClient
@@ -45,25 +42,26 @@ def logout():
 @app.route('/index.html')
 def index():
     categories = [ category['name'] for category in client.get_collection('categories').find()]
-    # items = client.get_collection('items').find()
-    return render_template('index.html', categories=categories,session=session)
+    items = list(client.get_collection('items').find())
+    return render_template('index.html', categories=categories,session=session,items=items)
 
 
-@app.route('/search_results.html', methods=['GET', 'POST'])
-def search():
-    if request.method == 'POST':
-        selected_categories = request.form.getlist('categories')
+@app.route('/filter_items', methods=['POST'])
+def filter_items():
+    selected_category_names = request.form.getlist('categories')
+    categories = client.get_collection('categories').find()
 
-        items_collection = client.get_collection('items')
+    category_name_to_id = {category['name']: str(category['_id']) for category in categories}
 
-        search_filter = {'category': {'$in': selected_categories}}
+    selected_category_ids = [category_name_to_id[cat_name] for cat_name in selected_category_names]
 
-        results = items_collection.find(search_filter)
-        print(results)
+    items = list(client.get_collection('items').find({'category': {'$in': selected_category_ids}}))
 
-        return render_template('search_results.html', results=results)
-    else:
-        return redirect('/index.html')
+    categories = [category['name'] for category in client.get_collection('categories').find()]
+
+
+    return render_template('index.html', items=items, categories=categories, session=session,selected_category_names=selected_category_names)
+
 
 
 @app.route('/list_items.html')

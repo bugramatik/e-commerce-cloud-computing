@@ -23,13 +23,34 @@
     {% endif %}
 
     <h2>Categories</h2>
-    <form action="/search_results.html" method="POST">
+    <form action="{{ url_for('filter_items') }}" method="POST">
         {% for category in categories %}
-        <div>
-            <input type="checkbox" id="{{ category }}" name="categories" value="{{ category }}">
+            <div>
+                {% if category in selected_category_names %}
+                <input type="checkbox" id="{{ category }}" name="categories" value="{{ category }}" checked>
+            {% else %}
+                <input type="checkbox" id="{{ category }}" name="categories" value="{{ category }}">
+            {% endif %}
             <label for="{{ category }}">{{ category }}</label>
         </div>
         {% endfor %}
         <button type="submit">Search</button>
     </form>
+
+    <h2>Items</h2>
+    <div class="items">
+
+        <ul>
+        {% for item in items %}
+            <li>
+                <div class="item">
+                    <h3><a href="{{ url_for('item_details', item_id=item['_id']) }}">{{ item.name }}</a></h3>
+                    <p>{{ item.description }}</p>
+                    <p>Price: {{ item.price }}</p>
+                    <img src="{{ item.image_url }}" alt="{{ item.name }}" style="max-width: 150px; max-height: 150px;">
+                </div>
+            </li>
+        {% endfor %}
+        </ul>
+    </div>
 {% endblock %}
