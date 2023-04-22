@@ -3,9 +3,7 @@
 {% block content %}
     <h1>{{ item.name }}</h1>
     <div style="display: flex;">
-        <!-- Item details -->
         <div class="item" style="width: 60%;">
-            <!-- Display common fields -->
             <p>{{ item.description }}</p>
             <p>Price: {{ item.price }} $</p>
             <p>Seller: {{ users_dict[item.seller] }}</p>

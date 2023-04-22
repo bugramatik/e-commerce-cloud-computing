@@ -1,5 +1,3 @@
-#TODO: Dynamic schema olayina bi bakmak lazim gereksiz field kullanmamak lazim computer icin size gibi
-#TODO:yorumlar,todolar, ve printler kontrol et
 from app import app
 from flask import render_template,request,redirect,url_for,flash,session
 from pymongo.mongo_client import MongoClient
@@ -13,7 +11,6 @@ client = connect_to_db()
 
 @app.route('/login', methods=['POST'])
 def login():
-    print(request.form)
     username = request.form['username']
     password_to_check = request.form.get('password').encode('utf-8')
     user = get_user(username)
@@ -51,7 +48,6 @@ def filter_items():
     categories = client.get_collection('categories').find()
 
     category_name_to_id = {category['name']: str(category['_id']) for category in categories}
-    print(category_name_to_id)
     selected_category_ids = [category_name_to_id[cat_name] for cat_name in selected_category_names]
     if not selected_category_ids: # Case of not selecting a category filter
         categories = client.get_collection('categories').find()
@@ -84,32 +80,37 @@ def add_item():
         users = list(client.get_collection('users').find())
         users = [user for user in users if user['is_admin'] == False]
         if request.method == 'POST':
+            selected_category = request.form['category']
+            category = client.get_collection('categories').find_one({'_id': ObjectId(selected_category)})
+            specific_to_category = category.get('specific_to_category', [])
+
+            details = {}
+            for field in specific_to_category:
+                details[field] = request.form.get(field, None)
+
             item_data = {
-            'name': request.form['name'],
-            'category': request.form['category'],
-            'description': request.form['description'],
-            'price': float(request.form['price']),
-            'seller': request.form['seller'],
-            'image_url': request.form['image_url'],
-            'rating': 0,
-            'reviews': {},
-            'rates': {},
-            'number_of_rates': 0,
-            'details': {
-                'size': request.form.get('size', None),
-                'colour': request.form.get('colour', None),
-                'spec': request.form.get('spec', None),
-                }
+                'name': request.form['name'],
+                'category': request.form['category'],
+                'description': request.form['description'],
+                'price': float(request.form['price']),
+                'seller': request.form['seller'],
+                'image_url': request.form['image_url'],
+                'rating': 0,
+                'reviews': {},
+                'rates': {},
+                'number_of_rates': 0,
+                'details': details
             }
 
             client.get_collection('items').insert_one(item_data)
             flash('Item added successfully', 'success')
             return redirect(url_for('list_items'))
-        print(users)
+
         return render_template('add_item.html', categories=categories, users=users)
     else:
         flash('You do not have permission to access this page', 'error')
         return redirect(url_for('index'))
+
 
 @app.route('/item/<item_id>')
 def item_details(item_id):

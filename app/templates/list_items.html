@@ -6,7 +6,6 @@
         {% for item in items %}
             <li>
         <div class="item">
-            <!-- Display common fields -->
             <h2><a href="{{ url_for('item_details', item_id=item['_id']) }}">{{ item.name }}</a></h2>
             <p>{{ item.description }}</p>
             <p>Price: {{ item.price }} $</p>
@@ -14,7 +13,6 @@
             <p>Category: {{item.category_name}}</p>
             <img src="{{ item.image_url }}" alt="{{ item.name }}">
 
-            <!-- Display item-specific fields -->
             {% if item.category_name == 'Clothing' %}
                 <p>Size: {{ item.details.size }}</p>
                 <p>Colour: {{ item.details.colour }}</p>
