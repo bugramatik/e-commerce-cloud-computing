@@ -1,14 +1,17 @@
 {% extends "base.html" %}
 
 {% block content %}
+    <p></p>
+    <a href="/list_items.html" class="btn"> <--List Items </a>
+
     <h1>{{ item.name }}</h1>
     <div style="display: flex;">
         <div class="item" style="width: 60%;">
-            <p>{{ item.description }}</p>
+            <img src="{{ item.image_url }}" alt="{{ item.name }}" style="max-width: 300px; max-height: 300px;">
+            <h4><p>{{ item.description }}</p></h4>
             <p>Price: {{ item.price }} $</p>
             <p>Seller: {{ users_dict[item.seller] }}</p>
             <p>Category: {{ item.category_name }}</p>
-            <img src="{{ item.image_url }}" alt="{{ item.name }}">
             <p>Rating: {{ item.rating }}</p>
             <p>Number of Ratings: {{ item.number_of_rates}}</p>
             {% if item.category_name == 'Clothing' %}
