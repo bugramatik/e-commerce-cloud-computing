@@ -4,3 +4,4 @@ Gunicorn
 python-dotenv
 pymongo
 dnspython
+bcrypt

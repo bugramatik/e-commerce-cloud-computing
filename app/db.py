@@ -15,3 +15,10 @@ def connect_to_db():
         print("Could not connect to MongoDB: %s" % e)
 
     return client[db]
+
+
+def get_user(username):
+    client = connect_to_db()
+    users_collection = client.get_collection('users')
+    user = users_collection.find_one({'username': username})
+    return user

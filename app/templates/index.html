@@ -1,13 +1,27 @@
 {% extends "base.html" %}
 
 {% block content %}
-    <form action="/login" method="POST">
-        <label for="username">Username:</label>
-        <input type="text" id="username" name="username" required>
-        <label for="password">Password (for admin):</label>
-        <input type="password" id="password" name="password">
-        <button type="submit">Log in</button>
-    </form>
+    {% if error %}
+        <p class=error><strong>Error:</strong> {{ error }}
+    {% endif %}
+    {% if session['username'] %}
+        <p>Welcome, {{ session['username'] }}!</p>
+    {% if session['is_admin'] %}
+        <p>You are an admin user.</p>
+        <a href="{{ url_for('list_users') }}" class="btn">List Users</a>
+    {% endif %}
+        <a href="{{ url_for('list_items') }}" class="btn">List Items</a>
+        <a href="{{ url_for('logout') }}">Log out</a>
+    {% else %}
+         <form action="/login" method="POST">
+            <label for="username">Username:</label>
+            <input type="text" id="username" name="username" required>
+            <label for="password">Password (for admin):</label>
+            <input type="password" id="password" name="password">
+            <button type="submit">Log in</button>
+        </form>
+
+    {% endif %}
 
     <h2>Categories</h2>
     <form action="/search_results.html" method="POST">

@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <h1>{{ item.name }}</h1>
+    <!-- Display other item details here -->
+   <div class="item">
+            <!-- Display common fields -->
+            <h2><a href="{{ url_for('item_details', item_id=item['_id']) }}">{{ item.name }}</a></h2>
+            <p>{{ item.description }}</p>
+            <p>Price: {{ item.price }}</p>
+            <p>Seller: {{ users_dict[item.seller]}}</p>
+            <p>Category: {{item.category_name}}</p>
+            <img src="{{ item.image_url }}" alt="{{ item.name }}">
+
+            <!-- Display item-specific fields -->
+            {% if item.category_name == 'Clothing' %}
+                <p>Size: {{ item.details.size }}</p>
+                <p>Colour: {{ item.details.colour }}</p>
+            {% elif item.category_name in ['Computer Components','Monitors']%}
+                <p>Spec: {{ item.details.spec }}</p>
+            {% endif %}
+            {% if session['is_admin'] %}
+                <td><a href="{{ url_for('delete_item', item_id=item['_id']) }}">Remove Item</a></td>
+            {% endif %}
+        </div>
+    <h2>Rate and Review</h2>
+    {% if not is_admin %}
+    <form action="{{ url_for('submit_review', item_id=item['_id']) }}" method="POST">
+        <label for="rating">Rating (1-5):</label>
+        <input type="number" id="rating" name="rating" min="1" max="5" required>
+        <br>
+        <label for="review">Review:</label>
+        <textarea id="review" name="review" required></textarea>
+        <br>
+        <button type="submit">Submit Review</button>
+    </form>
+    {% endif %}
+{% endblock %}

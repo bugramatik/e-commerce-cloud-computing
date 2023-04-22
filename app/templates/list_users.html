@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <h1>List of Users</h1>
+    <table>
+        <tr>
+            <th>Username</th>
+            <th>User Type</th>
+            <th></th>
+        </tr>
+        {% for user in users %}
+        <tr>
+            <td>{{ user.username }}</td>
+            <td>
+                {% if user.is_admin %}
+                    Admin
+                {% else %}
+                    Regular User
+                {% endif %}
+
+            </td>
+            <td>
+                <a href="{{ url_for('delete_user', user_id=user['_id']) }}">Remove User</a>
+            </td>
+
+        </tr>
+        {% endfor %}
+    </table>
+    {%  if session['is_admin'] %}
+    <a href="{{ url_for('add_user') }}">Add User</a>
+    {% endif %}
+{% endblock %}
