@@ -1,4 +1,3 @@
-#TODO: Authoritazion bidaha kontrol et
 #TODO: Dynamic schema olayina bi bakmak lazim gereksiz field kullanmamak lazim computer icin size gibi
 #TODO:yorumlar,todolar, ve printler kontrol et
 from app import app
@@ -125,6 +124,9 @@ def item_details(item_id):
 
 @app.route('/submit_review/<item_id>', methods=['POST'])
 def submit_review(item_id):
+    if 'username' not in session:
+        flash('You need to be logged in to submit a review', 'error')
+        return redirect(url_for('index'))
     review = request.form['review']
     username = session.get('username')
     client.get_collection('items').update_one(
@@ -138,6 +140,9 @@ def submit_review(item_id):
 
 @app.route('/submit_rating/<item_id>', methods=['POST'])
 def submit_rate(item_id):
+    if 'username' not in session:
+        flash('You need to be logged in to rate a product', 'error')
+        return redirect(url_for('index'))
     rate = int(request.form['rating'])
     username = session.get('username')
 
